@@ -1,0 +1,10 @@
+Une élève de mon club d'Astronomie m'a posé cette question :
+"Pourquoi faut-il attendre certaines années précises pour envoyer des robots sur Mars ?"
+
+La meilleure façon d'y répondre, c'est de faire une petite animation en programmation Snap! 
+très simple et compréhensible par les élèves pour expérimenter visuellement ce problème
+et y trouver une réponse expérimentale.
+
+Cette petite animation s'est aussi avérée très utilepour observer la partie tellurique
+de notre système solaire et tracer des trajectoires ainsi que des chronophotographies
+pour réfléchir sur les mouvement au collège.

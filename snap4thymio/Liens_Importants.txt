@@ -1,0 +1,11 @@
+https://www.thymio.org/fr/faq/comment-configurer-l-appairage-de-wireless-thymio-avec-son-dongle/
+
+http://localhost:3000/nodes/thymio-II/
+localhost:3000/nodes/thymio-II/motor.left.target/100
+
+
+https://pixees.fr/dm1r.fr/thymio-scratch-sim/
+https://github.com/davidjsherman/inirobot-scratch-thymioII
+https://github.com/davidjsherman/aseba/tree/master/switches/http
+
+
