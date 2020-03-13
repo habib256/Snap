@@ -1,3 +1,6 @@
 #!/bin/bash
 
-./asebascratch -v -a ./thymio_motion.aesl
+cd /home/administrateur/src/snap/snap4thymio
+#./asebascratch -v -a ./thymio_motion.aesl
+asebahttp  --aesl ./thymio_motion.aesl -s 33333 "ser:name=Thymio-II"
+#asebahttp2  --aesl ./thymio_motion.aesl -s 33333 "ser:name=Thymio-II"
