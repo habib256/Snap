@@ -27,9 +27,10 @@
 <event size="1" name="A_sound_record"/>
 <event size="1" name="M_motor_left"/>
 <event size="1" name="M_motor_right"/>
+<event size="2" name="M_motor_both"/>
 <event size="27" name="R_state_update"/>
 <event size="0" name="Q_reset"/>
-<event size="2" name="T_avance"/>
+
 
 
 <!--list of constants-->
@@ -61,7 +62,7 @@
 ##! -# Odometry (angle, x, y), updated at 100Hz (@ref Odometry)
 ##! -# Incoming events for native functions: V_leds_*, A_sound_*, M_motor_* (@ref Native)
 ##! -# Variables for simplified reporters (distance and angle) from prox.* (@ref Reporters)
-##! -# Broacast of compressed robot state at 10 Hz (@ref State)
+##! -# Broadcast of compressed robot state at 10 Hz (@ref State)
 ##!
 ##! Events that can be used for broadcast on the Aseba bus are defined in @ref aesl_events.
 ##! Constants are defined in @ref aesl_constants.
@@ -465,12 +466,12 @@ motor.left.target = event.args[0]
 onevent M_motor_right
 motor.right.target = event.args[0]
 
-##! Run the right motor
-##! @brief M_motor_right \%n
-##! @param speed
-onevent T_avance
-motor.right.target = event.args[0]
-motor.left.target = event.args[1]
+# Some new events for the thymio by gist
+
+##! Run both motors
+onevent M_motor_both
+motor.left.target = event.args[0]
+motor.right.target = event.args[1]
 
 ##! @}
 </node>
