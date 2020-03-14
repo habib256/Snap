@@ -29,6 +29,7 @@
 <event size="1" name="M_motor_right"/>
 <event size="27" name="R_state_update"/>
 <event size="0" name="Q_reset"/>
+<event size="2" name="T_avance"/>
 
 
 <!--list of constants-->
@@ -40,7 +41,7 @@
 
 
 <!--node thymio-II-->
-<node nodeId="1" name="thymio-II">##!
+<node nodeId="41918" name="thymio-II">##!
 ##! @file thymio_motion.aesl
 ##! @brief Basic motion queue for Thymio-II
 ##! @mainpage Basic motion queue for Thymio-II
@@ -463,6 +464,13 @@ motor.left.target = event.args[0]
 ##! @param speed
 onevent M_motor_right
 motor.right.target = event.args[0]
+
+##! Run the right motor
+##! @brief M_motor_right \%n
+##! @param speed
+onevent T_avance
+motor.right.target = event.args[0]
+motor.left.target = event.args[1]
 
 ##! @}
 </node>
