@@ -70,7 +70,7 @@
 # reusable temp for event handlers
 var tmp[9]
 
-# Selectionne le mode comportemental de thymio au démarrage
+# Selectionne le mode comportemental de thymio au demarrage
 var mode = 0
 
 ##! @defgroup Queue
