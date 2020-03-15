@@ -14,8 +14,7 @@
 <event size="8" name="V_leds_prox_h"/>
 <event size="8" name="V_leds_circle"/>
 <event size="3" name="V_leds_top"/>
-<event size="3" name="V_leds_bottom_left"/>
-<event size="3" name="V_leds_bottom_right"/>
+<event size="4" name="V_leds_bottom"/>
 <event size="2" name="V_leds_prox_v"/>
 <event size="4" name="V_leds_buttons"/>
 <event size="1" name="V_leds_rc"/>
@@ -28,7 +27,6 @@
 <event size="1" name="A_sound_record"/>
 <event size="1" name="M_motor_left"/>
 <event size="1" name="M_motor_right"/>
-<event size="2" name="M_motor_both"/>
 <event size="27" name="R_state_update"/>
 <event size="0" name="Q_reset"/>
 
@@ -62,16 +60,13 @@
 ##! -# Odometry (angle, x, y), updated at 100Hz (@ref Odometry)
 ##! -# Incoming events for native functions: V_leds_*, A_sound_*, M_motor_* (@ref Native)
 ##! -# Variables for simplified reporters (distance and angle) from prox.* (@ref Reporters)
-##! -# Broadcast of compressed robot state at 10 Hz (@ref State)
+##! -# Broacast of compressed robot state at 10 Hz (@ref State)
 ##!
 ##! Events that can be used for broadcast on the Aseba bus are defined in @ref aesl_events.
 ##! Constants are defined in @ref aesl_constants.
 
 # reusable temp for event handlers
 var tmp[9]
-
-# Selectionne le mode comportemental de thymio au demarrage
-var mode = 0
 
 ##! @defgroup Queue
 ##! @brief A motion queue with program counter, used by @ref Motion and @ref Odometry
@@ -325,69 +320,12 @@ R_state = [	((((acc[0]/2)+16)%32)&lt;&lt;10) + ((((acc[1]/2)+16)%32)&lt;&lt;5) +
 			prox.horizontal[0:6],
 			Qid[0:3]
 		  ]
-		  
-# MODES DE COMPORTEMENTS POUR THYMIO		  
-if  mode == 1 then
-# MODE OBEISSANT DE THYMIO
-if button.forward==1 then
-        motor.left.target=200 
-        motor.right.target=200 
-    end
-     
-     if button.center==1 then 
-        motor.left.target=0 
-        motor.right.target=0 
-    end
-     
-    if button.backward==1 then 
-        motor.left.target=-200 
-        motor.right.target=-200 
-    end
-     
-    if button.left==1 then 
-        motor.left.target=-200 
-        motor.right.target=200 
-    end
-     
-    if button.right==1 then 
-        motor.left.target=200 
-        motor.right.target=-200
-    end
-end
-#######################################################
 
 # broadcast state at 10 Hz
 onevent prox
 if R_state.do==1 then
 	emit R_state_update(R_state)
 end
-# MODES DE COMPORTEMENTS POUR THYMIO	
-#######################################################	  
-if  mode == 2 then
-# MODE SUIVI DE LIGNE DE THYMIO
-                if  prox.ground.reflected[0]&lt;500 and prox.ground.reflected[1]&lt;500 then # suivre ligne
-                    motor.left.target=200
-                    motor.right.target=200
-                    call leds.top(32,0,32) # violet
-                end
-                if  prox.ground.reflected[0]&lt;500 and prox.ground.reflected[1]>500 then
-                    motor.left.target=-20
-                    motor.right.target=200
-                end
-                if  prox.ground.reflected[0]>500 and prox.ground.reflected[1]&lt;500 then
-                    motor.left.target=200
-                    motor.right.target=0
-                end
-                if  prox.horizontal[5]>1000 or prox.horizontal[6]>1000 then # arrêt à la fin (drapeau stop derrière thymio)
-                    motor.left.target=0
-                    motor.right.target=0
-                    call leds.circle(0,0,0,0,0,0,0,0)
-                    call leds.top(0,0,0)
-                    mode = 0
-                end # robot arrêté prêt à recommencer
-         
-end
-
 
 ##! @defgroup Native
 ##! @brief Incoming events for native functions: @c V_leds_*, @c A_sound_*, @c M_motor_*
@@ -396,23 +334,18 @@ end
 ##! Note that the brief description line for each will be used as the Scratch block definition.
 ##! @{
 
-##! Light the bottom LED left
+##! Light the bottom LEDs
 ##! @brief V_leds_bottom \%m.zeroone \%n \%n \%n
 ##! @param red red LED value 0..31
 ##! @param green green LED value 0..31
 ##! @param blue blue LED value 0..31
-onevent V_leds_bottom_left
-call leds.bottom.left(event.args[0],event.args[1],event.args[2])
-
-
-##! Light the bottom LEDs right
-##! @brief V_leds_bottom \%m.zeroone \%n \%n \%n
-##! @param red red LED value 0..31
-##! @param green green LED value 0..31
-##! @param blue blue LED value 0..31
-onevent V_leds_bottom_right
-call leds.bottom.right(event.args[0],event.args[1],event.args[2])
-
+##! @param side left (0) or right (1)
+onevent V_leds_bottom
+if event.args[0]==0 then
+	call leds.bottom.left(event.args[1],event.args[2],event.args[3])
+else
+	call leds.bottom.right(event.args[1],event.args[2],event.args[3])
+end
 
 ##! Light the button LEDs
 ##! @brief V_leds_buttons \%n \%n \%n \%n
@@ -530,15 +463,6 @@ motor.left.target = event.args[0]
 ##! @param speed
 onevent M_motor_right
 motor.right.target = event.args[0]
-
-# Some new events for the thymio by gist
-###########################################
-
-##! Run both motors
-onevent M_motor_both
-motor.left.target = event.args[0]
-motor.right.target = event.args[1]
-
 
 ##! @}
 </node>
