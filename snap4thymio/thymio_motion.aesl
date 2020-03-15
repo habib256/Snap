@@ -42,7 +42,7 @@
 
 
 <!--node thymio-II-->
-<node nodeId="41918" name="thymio-II">##!
+<node nodeId="47150" name="thymio-II">##!
 ##! @file thymio_motion.aesl
 ##! @brief Basic motion queue for Thymio-II
 ##! @mainpage Basic motion queue for Thymio-II
