@@ -1,0 +1,20 @@
+<!DOCTYPE aesl-source>
+<network>
+<!--list of global events-->
+<!--list of constants-->
+<!--show keywords state-->
+<keywords flag="true"/>
+<!--node thymio-II-->
+<node nodeId="1" name="thymio-II">
+motor.left.target = 300
+motor.right.target = 300	
+onevent prox
+	when prox.horizontal[3] > 200 do
+		motor.left.target = -300
+		motor.right.target = 300	
+	end
+	when prox.horizontal[3] &lt; 200 do
+		motor.left.target = 200
+		motor.right.target = 200
+	end</node>
+</network>
