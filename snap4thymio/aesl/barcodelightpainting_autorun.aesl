@@ -1,0 +1,139 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="2" name="data"/>
+<event size="2" name="motors"/>
+
+
+<!--list of constants-->
+<constant value="0" name="S_WAIT_SYNC"/>
+<constant value="1" name="S_READING"/>
+<constant value="5" name="INTERVAL"/>
+<constant value="650" name="BW_LIMIT"/>
+<constant value="32" name="ON"/>
+<constant value="0" name="OFF"/>
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node thymio-II-->
+<node nodeId="1" name="thymio-II">### VARIABLES DECLARATION ###
+var running = 1
+var counter = 0
+var state
+var intensityDiff
+var code
+#Colors tables
+var r[]=[OFF,OFF,OFF,OFF,ON,ON,ON,ON] 
+var g[]=[OFF,OFF,ON,ON,OFF,OFF,ON,ON] 
+var b[]=[OFF,ON,OFF,ON,OFF,ON,OFF,ON]
+
+call leds.top(r[code], g[code], b[code])
+#0=colorless,1=blue,2=green,3=lightblue,4=red,5=darkpink,6=yellow,7=purple
+
+### TURNING OFF THE LEDs ###
+call leds.prox.v(0,0)
+call leds.prox.h(0,0,0,0,0,0,0,0)
+call leds.top(0,0,0)
+call leds.temperature(0,0)
+
+### EVENT BUTTON FORWARD ###
+onevent button.forward
+# starts line tracking and waits for sync bit
+if button.forward == 1 then
+	running = 1
+	state = S_WAIT_SYNC
+end
+
+### EVENT BUTTON CENTER ###
+onevent button.center
+#stops running and motors, turns LEDs off
+if  button.center == 1 then
+	running = 0
+	motor.left.target = 0
+	motor.right.target = 0
+	call leds.top(0,0,0)
+end
+
+### EVENT PROXIMITY SENSORS (EVERY 100 ms => 10 Hz)###
+onevent prox
+#if the robot is running, steering and bar code reading are activated
+#we use the prox.ground.delta[1] to steer, the ...[0] to check the bar code
+	
+	if running == 1 then
+	
+	### STEERING PART ###
+	intensityDiff = prox.ground.delta[1]-525
+	#speed of robot is adjusted to keep around a gray mean value. If 
+	#difference is too important, the robot spins until it finds the line
+	#again. The steering is controled by the gray gradient of the trail.
+	if abs(intensityDiff) &lt; 170 then
+		motor.left.target = 115+intensityDiff/8
+		motor.right.target = 115-intensityDiff/8
+	else
+		motor.left.target = intensityDiff/4
+		motor.right.target = -intensityDiff/4
+#edit to stop colours if line is lost
+		state = S_WAIT_SYNC
+	end
+
+	### BAR CODE CHECKING PART ###
+	#if Thymio is waiting for sync and crosses a black line, it starts bar
+	#code reading and turns LEDs off.
+	if state == S_WAIT_SYNC and prox.ground.delta[0] &lt; BW_LIMIT then
+		state = S_READING
+		call leds.top(0,0,0)
+		counter = 0
+		emit data [prox.ground.delta[0],1000]
+	end
+	emit data [prox.ground.delta[0],0]
+	#if state is reading, the robot reads the bar code 
+	if state == S_READING then 
+
+		#we wait to count to 2 times the timer = 100 ms (counter is 
+		#increment at the end of the code) so we are in the middle of the 
+		#black sync box
+		if counter == 2 then
+			code=0
+		#we wait the first two counter + one INTERVAL (4 * 50ms) to measure 
+		#the first block of bar code. This can be tuned to match with the 
+		#speed of the robot
+		elseif counter == (2+INTERVAL) then
+		emit data [prox.ground.delta[0],1000]
+		#if bit is white set code to 1  (c0=001b)
+			if  prox.ground.delta[0]>BW_LIMIT 
+			then code=1 
+			else code=0		
+			end
+		#test again after another INTERVAL 
+		elseif counter == (2+2*INTERVAL) then
+		emit data [prox.ground.delta[0],1000]
+			#if bit is white add 2^1 to code (c1=010b)
+			if  prox.ground.delta[0]>BW_LIMIT 
+			then code +=2				
+			end
+		elseif counter == (2+3*INTERVAL) then
+		emit data [prox.ground.delta[0],1000]
+			#if bit is white add 2^2 to code (c2=100b)
+			if  prox.ground.delta[0]>BW_LIMIT then code +=4				
+			end
+			
+			#LEDs are turned on according to binary code (c2 c1 c0)
+			call leds.top(r[code],g[code],b[code])
+		#again another INTERVAL and we go back to S_WAIT_SYNC to wait for 
+		#the next bar code
+		elseif counter == (2+4*INTERVAL+3) then
+			state = S_WAIT_SYNC
+		end
+		counter += 1
+	else
+		call leds.circle(0,0,0,0,0,0,0,0)
+	end
+end</node>
+
+
+</network>
